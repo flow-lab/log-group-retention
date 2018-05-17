@@ -1,0 +1,59 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Lambda function that creates log groups subscription filters to lambda funtion
+
+Parameters:
+  DeploymentBucket:
+    Description: Deployment bucket name
+    Type: String
+    MinLength: 1
+  DeploymentFile:
+    Description: Deployment file name
+    Type: String
+    MinLength: 1
+  RetentionInDays:
+    Description: Deployment file name
+    Type: Number
+    Default: 7
+
+Resources:
+  FunctionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ['lambda.amazonaws.com']
+            Action: ['sts:AssumeRole']
+      Policies:
+        - PolicyName: cloudwatch-logs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:*'
+                Resource: '*'
+
+  Function:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri:
+        Bucket: !Ref DeploymentBucket
+        Key: !Sub 'log-group-retention/${DeploymentFile}'
+      MemorySize: 128
+      Description: Set log retention on Log Groups
+      Handler: main
+      Runtime: go1.x
+      Timeout: 30
+      Role: !GetAtt FunctionRole.Arn
+      Environment:
+        Variables:
+          RETENTION_IN_DAYS: !Ref RetentionInDays
+      Events:
+        ScheduleFunction:
+          Type: Schedule
+          Properties:
+            Schedule: rate(60 minutes)
