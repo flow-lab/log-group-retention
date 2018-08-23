@@ -5,11 +5,11 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs/cloudwatchlogsiface"
 	"github.com/flow-lab/dlog"
-	"github.com/log-group-retention"
+	"github.com/flow-lab/log-group-retention"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
-	"testing"
 	"os"
+	"testing"
 )
 
 const requestId = "1-581cf771-a006649127e371903a2de979"
