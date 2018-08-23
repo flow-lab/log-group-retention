@@ -1,4 +1,4 @@
-## AWS log group subscriber
+## AWS log group subscriber [![Build Status](https://travis-ci.org/flow-lab/log-group-retention.svg?branch=master)](https://travis-ci.org/flow-lab/log-group-retention)
 
 Lambda function that puts `RetentionPolicy` for log groups if missing.
 
