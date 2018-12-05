@@ -30,7 +30,7 @@ Resources:
     Properties:
       Handler: main
       Runtime: go1.x
-      CodeUri: .
+      CodeUri: s3://flowlab-no-artifact-public/log-group-retention/v0.1.0/log-group-retention.zip
       MemorySize: 128
       Description: >-
         Set log retention on Log Groups if missing
