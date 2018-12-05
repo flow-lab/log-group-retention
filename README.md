@@ -23,3 +23,7 @@ it to deployment package `deployment-123456789.zip`
 ```
 
 To deploy to AWS with cloudformation template use `deploy.sh` script
+
+## License
+
+MIT License (MIT)
