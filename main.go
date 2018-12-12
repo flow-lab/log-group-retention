@@ -16,11 +16,13 @@ import (
 	"strconv"
 )
 
+// LogGroup dto, used in processing
 type LogGroup struct {
 	LogGroupName    *string
 	RetentionInDays *int64
 }
 
+// Handler for lambda execution
 func Handler(ctx context.Context, _ events.CloudWatchEvent) (string, error) {
 	lambdaContext, _ := lambdacontext.FromContext(ctx)
 	requestLogger := dlog.NewRequestLogger(lambdaContext.AwsRequestID, "log-group-retention")
@@ -37,6 +39,7 @@ func Handler(ctx context.Context, _ events.CloudWatchEvent) (string, error) {
 	return "event processed", nil
 }
 
+// ProcessEvent gets log groups and puts retention policy
 func ProcessEvent(logs cloudwatchlogsiface.CloudWatchLogsAPI, log *log.Entry) ([]string, error) {
 	logGroups, err := GetLogGroups(logs)
 	if err != nil {
@@ -52,6 +55,7 @@ func ProcessEvent(logs cloudwatchlogsiface.CloudWatchLogsAPI, log *log.Entry) ([
 	return result, nil
 }
 
+// GetLogGroups gets all logs groups in account
 func GetLogGroups(logs cloudwatchlogsiface.CloudWatchLogsAPI) ([]*cloudwatchlogs.LogGroup, error) {
 	var logGroups []*cloudwatchlogs.LogGroup
 	input := cloudwatchlogs.DescribeLogGroupsInput{}
@@ -67,6 +71,7 @@ func GetLogGroups(logs cloudwatchlogsiface.CloudWatchLogsAPI) ([]*cloudwatchlogs
 	return logGroups, nil
 }
 
+// PutRetentionPolicy puts retention policy if missing
 func PutRetentionPolicy(logGroups []LogGroup, logs cloudwatchlogsiface.CloudWatchLogsAPI, log *log.Entry) ([]string, error) {
 	var result []string
 	for _, logGroup := range logGroups {
