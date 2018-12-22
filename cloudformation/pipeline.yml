@@ -102,9 +102,9 @@ Resources:
                 - Name: Built
               Configuration:
                 ProjectName: !Ref CodeBuild
-        - Name: Development
+        - Name: Staging
           Actions:
-            - Name: DeployApplication
+            - Name: Deploy
               RunOrder: 1
               InputArtifacts:
                 - Name: Built
@@ -112,10 +112,20 @@ Resources:
                 Category: Deploy
                 Owner: AWS
                 Version: 1
-                Provider: CodeDeploy
+                Provider: CloudFormation
               Configuration:
-                ApplicationName: !Ref ApplicationName
-                DeploymentGroupName: development
+                ActionMode: REPLACE_ON_FAILURE
+                RoleArn: !Sub ${CodePipelineCloudFormationRole.Arn}
+                Capabilities: CAPABILITY_NAMED_IAM
+                StackName: !Sub ${ApplicationName}-test
+                TemplatePath: Built::cloudformation/template.yml
+#                TemplateConfiguration: Built::config/staging.conf
+#                ParameterOverrides: !Sub |
+#                  {
+#                      "ApplicationName": "${ApplicationName}",
+#                      "EnvironmentName": "staging",
+#                      "ArtifactS3Bucket": "${ArtifactS3Bucket}"
+#                  }
 
   CodeBuild:
     Type: AWS::CodeBuild::Project
