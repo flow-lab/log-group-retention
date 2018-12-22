@@ -20,6 +20,17 @@ and 3653.
 
 Run`build.sh`, `upload.sh` and `deploy.sh` accordingly to get app up and running.
 
+## CodePipeline
+
+```sh
+aws cloudformation deploy \
+    --stack-name log-group-retention-codepipeline \
+    --parameter-overrides ApplicationName="log-group-retention" ArtifactS3Bucket="flowlab-no-artifact-private" GitHubUser="flow-lab" GitHubRepository="log-group-retention" GitHubOAuthToken="GITHUB_TOKEN" \
+    --template cloudformation/pipeline.yml \
+    --capabilities CAPABILITY_NAMED_IAM \
+    --profile cloudformation@flowlab-development
+```
+
 ## License
 
 MIT License (MIT)

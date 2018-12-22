@@ -1,0 +1,21 @@
+version: 0.1
+
+phases:
+  install:
+    commands:
+      - go get -d ./...
+      - go get -u golang.org/x/lint/golint
+  pre_build:
+    commands:
+      - golint -set_exit_status
+      - go test
+  build:
+    commands:
+      - go build -o main
+
+artifacts:
+  files:
+    - app
+    - buildspec.yml
+    - codedeploy/*
+    - cloudformation/*
