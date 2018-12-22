@@ -11,13 +11,13 @@ import (
 	"testing"
 )
 
-const requestId = "1-581cf771-a006649127e371903a2de979"
+const requestID = "1-581cf771-a006649127e371903a2de979"
 
 func TestProcessEvent(t *testing.T) {
 	os.Setenv("RETENTION_IN_DAYS", "60")
 	cwl := &mockCloudWatchLogsClient{}
 
-	result, err := ProcessEvent(cwl, dlog.NewRequestLogger(requestId, "test"))
+	result, err := ProcessEvent(cwl, dlog.NewRequestLogger(requestID, "test"))
 
 	assert.Nil(t, err)
 	assert.Len(t, result, 1)
@@ -43,7 +43,7 @@ func TestPutRetentionPolicy(t *testing.T) {
 	}
 	logGroups = append(logGroups, logGroup)
 
-	result, err := PutRetentionPolicy(logGroups, cwl, dlog.NewRequestLogger(requestId, "test"))
+	result, err := PutRetentionPolicy(logGroups, cwl, dlog.NewRequestLogger(requestID, "test"))
 
 	assert.Nil(t, err)
 	assert.Len(t, result, 1)
@@ -62,9 +62,9 @@ type mockCloudWatchLogsClient struct {
 }
 
 func (m *mockCloudWatchLogsClient) DescribeLogGroups(input *cloudwatchlogs.DescribeLogGroupsInput) (*cloudwatchlogs.DescribeLogGroupsOutput, error) {
-	var inputJson = readFile("testdata/describeLogGroups-output.json")
+	var inputJSON = readFile("testdata/describeLogGroups-output.json")
 	var describeLogGroupsOutput cloudwatchlogs.DescribeLogGroupsOutput
-	err := json.Unmarshal(inputJson, &describeLogGroupsOutput)
+	err := json.Unmarshal(inputJSON, &describeLogGroupsOutput)
 	if err != nil {
 		panic(err)
 	}
@@ -72,9 +72,9 @@ func (m *mockCloudWatchLogsClient) DescribeLogGroups(input *cloudwatchlogs.Descr
 }
 
 func (m *mockCloudWatchLogsClient) DescribeLogGroupsPages(input *cloudwatchlogs.DescribeLogGroupsInput, f func(*cloudwatchlogs.DescribeLogGroupsOutput, bool) bool) error {
-	var inputJson = readFile("testdata/describeLogGroups-output.json")
+	var inputJSON = readFile("testdata/describeLogGroups-output.json")
 	var describeLogGroupsOutput cloudwatchlogs.DescribeLogGroupsOutput
-	err := json.Unmarshal(inputJson, &describeLogGroupsOutput)
+	err := json.Unmarshal(inputJSON, &describeLogGroupsOutput)
 	if err != nil {
 		panic(err)
 	}
