@@ -4,6 +4,7 @@ phases:
   install:
     commands:
       - go get -d ./...
+      - go get -u github.com/stretchr/testify/assert
       - go get -u golang.org/x/lint/golint
   pre_build:
     commands:
