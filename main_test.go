@@ -1,11 +1,10 @@
-package main_test
+package main
 
 import (
 	"encoding/json"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs/cloudwatchlogsiface"
 	"github.com/flow-lab/dlog"
-	"github.com/flow-lab/log-group-retention"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"os"
@@ -18,7 +17,7 @@ func TestProcessEvent(t *testing.T) {
 	os.Setenv("RETENTION_IN_DAYS", "60")
 	cwl := &mockCloudWatchLogsClient{}
 
-	result, err := main.ProcessEvent(cwl, dlog.NewRequestLogger(requestId, "test"))
+	result, err := ProcessEvent(cwl, dlog.NewRequestLogger(requestId, "test"))
 
 	assert.Nil(t, err)
 	assert.Len(t, result, 1)
@@ -27,7 +26,7 @@ func TestProcessEvent(t *testing.T) {
 func TestGetLogGroups(t *testing.T) {
 	cwl := &mockCloudWatchLogsClient{}
 
-	logGroups, err := main.GetLogGroups(cwl)
+	logGroups, err := GetLogGroups(cwl)
 
 	check(t, err)
 	assert.NotNil(t, logGroups)
@@ -37,14 +36,14 @@ func TestGetLogGroups(t *testing.T) {
 func TestPutRetentionPolicy(t *testing.T) {
 	cwl := &mockCloudWatchLogsClient{}
 
-	var logGroups []main.LogGroup
+	var logGroups []LogGroup
 	test := "test"
-	logGroup := main.LogGroup{
+	logGroup := LogGroup{
 		LogGroupName: &test,
 	}
 	logGroups = append(logGroups, logGroup)
 
-	result, err := main.PutRetentionPolicy(logGroups, cwl, dlog.NewRequestLogger(requestId, "test"))
+	result, err := PutRetentionPolicy(logGroups, cwl, dlog.NewRequestLogger(requestId, "test"))
 
 	assert.Nil(t, err)
 	assert.Len(t, result, 1)
