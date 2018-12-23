@@ -9,8 +9,8 @@ phases:
     commands:
       - golint -set_exit_status
       - go test
-      - go test -race -coverprofile=coverage.txt -covermode=atomic
-      - bash <(curl -s https://codecov.io/bash)
+#      - go test -race -coverprofile=coverage.txt -covermode=atomic
+#      - bash <(curl -s https://codecov.io/bash)
   build:
     commands:
       - go build -o main
