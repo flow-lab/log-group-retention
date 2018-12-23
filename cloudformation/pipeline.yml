@@ -112,7 +112,6 @@ Resources:
                 Provider: CloudFormation
               Configuration:
                 ActionMode: CHANGE_SET_EXECUTE
-                ChangeSetName: pipeline-changeset
                 RoleArn: !Sub ${CodePipelineCloudFormationRole.Arn}
                 StackName: !Sub ${ApplicationName}-test
                 TemplatePath: Built::cloudformation/output-template.yml
