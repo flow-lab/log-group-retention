@@ -134,7 +134,7 @@ Resources:
           - Name: ARTIFACT_S3_BUCKET
             Value: !Sub ${ArtifactS3Bucket}
           - Name: KMS_KEY_ID
-            Value: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/s3"
+            Value: !Sub arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/s3
       Artifacts:
         Name: !Ref ApplicationName
         Type: CODEPIPELINE
@@ -171,7 +171,8 @@ Resources:
                             "S3:GetObjectVersion"
                         ],
                         "Resource": [
-                            "arn:aws:s3:::${ArtifactS3Bucket}/${ApplicationName}/*"
+                            "arn:aws:s3:::${ArtifactS3Bucket}/${ApplicationName}/*",
+                            "arn:aws:s3:::${ArtifactS3Bucket}/*"
                         ],
                         "Effect": "Allow"
                     },
@@ -319,7 +320,8 @@ Resources:
                     {
                         "Effect": "Allow",
                         "Resource": [
-                            "arn:aws:s3:::${ArtifactS3Bucket}/${ApplicationName}/*"
+                            "arn:aws:s3:::${ArtifactS3Bucket}/${ApplicationName}/*",
+                            "arn:aws:s3:::${ArtifactS3Bucket}/*"
                         ],
                         "Action": [
                             "s3:GetObject",
