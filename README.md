@@ -27,6 +27,7 @@ To deploy
 aws cloudformation deploy \
     --stack-name log-group-retention-codepipeline \
     --parameter-overrides ApplicationName="log-group-retention" GitHubUser="flow-lab" GitHubRepository="log-group-retention" GitHubOAuthToken="GITHUB_TOKEN" \
+    --role-arn "ROLE_ARN"
     --template cloudformation/pipeline.yml \
     --capabilities CAPABILITY_NAMED_IAM \
     --profile cloudformation@flowlab-development

@@ -4,24 +4,19 @@ Description: >
   It is inspired by https://github.com/aws-samples/golang-deployment-pipeline.
 
 Parameters:
-
   ApplicationName:
     Description: This will be used to name the pipeline and build resources
     Type: String
     AllowedPattern: '[A-Za-z0-9-]+'
-
   GitHubOAuthToken:
     Description: Create a token with 'repo' and 'admin:repo_hook' permissions here https://github.com/settings/tokens
     Type: String
-
   GitHubUser:
     Description: Enter GitHub username of the repository owner
     Type: String
-
   GitHubRepository:
     Description: Enter the repository name that should be monitored for changes
     Type: String
-
   GitHubBranch:
     Description: Enter the GitHub branch to monitored
     Type: String
@@ -100,9 +95,9 @@ Resources:
               Configuration:
                 ProjectName: !Ref CodeBuild
               RunOrder: 2
-        - Name: Staging
+        - Name: Deploy
           Actions:
-            - Name: Deploy
+            - Name: create-changeset
               InputArtifacts:
                 - Name: Built
               ActionTypeId:
@@ -110,12 +105,28 @@ Resources:
                 Owner: AWS
                 Version: 1
                 Provider: CloudFormation
+              OutputArtifacts: []
               Configuration:
-                ActionMode: CHANGE_SET_EXECUTE
-                RoleArn: !Sub ${CodePipelineCloudFormationRole.Arn}
-                StackName: !Sub ${ApplicationName}-test
+                StackName: !Sub ${ApplicationName}-lambda
+                ActionMode: CHANGE_SET_REPLACE
+                RoleArn: !Ref CodePipelineCloudFormationRole
+                ChangeSetName: pipeline-changeset
+                Capabilities: CAPABILITY_NAMED_IAM
                 TemplatePath: Built::cloudformation/output-template.yml
-              RunOrder: 3
+              RunOrder: 1
+            - Name: execute-changeset
+              InputArtifacts: []
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: CloudFormation
+              OutputArtifacts: []
+              Configuration:
+                StackName: !Sub ${ApplicationName}-lambda
+                ActionMode: CHANGE_SET_EXECUTE
+                ChangeSetName: pipeline-changeset
+              RunOrder: 2
 
   CodeBuild:
     Type: AWS::CodeBuild::Project
