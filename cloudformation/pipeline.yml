@@ -134,7 +134,7 @@ Resources:
           - Name: ARTIFACT_S3_BUCKET
             Value: !Sub ${ArtifactS3Bucket}
           - Name: KMS_KEY_ID
-            Value: 'aws/s3'
+            Value: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/s3"
       Artifacts:
         Name: !Ref ApplicationName
         Type: CODEPIPELINE
