@@ -3,12 +3,14 @@ version: 0.2
 phases:
   install:
     commands:
-      - go get -t -v ./...
+      - go get -d -t -v ./...
       - go get -u golang.org/x/lint/golint
   pre_build:
     commands:
       - golint -set_exit_status
       - go test
+      - go test -race -coverprofile=coverage.txt -covermode=atomic
+      - bash <(curl -s https://codecov.io/bash)
   build:
     commands:
       - go build -o main
