@@ -22,12 +22,14 @@ Run`build.sh`, `upload.sh` and `deploy.sh` accordingly to get app up and running
 
 ## CodePipeline
 
-To deploy
+Deploy first [cloudformation-service-role](https://github.com/flow-lab/aws-cloudformation/tree/master/cloudformation-service-role)
+
+Deploy codepipeline(replace GITHUB_TOKEN and ACCOUNT_ID):
 ```sh
 aws cloudformation deploy \
     --stack-name log-group-retention-codepipeline \
     --parameter-overrides ApplicationName="log-group-retention" GitHubUser="flow-lab" GitHubRepository="log-group-retention" GitHubOAuthToken="GITHUB_TOKEN" \
-    --role-arn "ROLE_ARN"
+    --role-arn "arn:aws:iam::ACCOUNT_ID:role/cloudformation-service-role"
     --template cloudformation/pipeline.yml \
     --capabilities CAPABILITY_NAMED_IAM \
     --profile cloudformation@flowlab-development
