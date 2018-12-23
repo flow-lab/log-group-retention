@@ -126,6 +126,27 @@ Resources:
       ServiceRole: !Ref CodeBuildRole
       Source:
         Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            install:
+              commands:
+                - go get -d -t -v ./...
+                - go get -u golang.org/x/lint/golint
+            pre_build:
+              commands:
+                - golint -set_exit_status
+                - go test
+            build:
+              commands:
+                - go build -o main
+                - aws cloudformation package --template-file cloudformation/template.yml --kms-key-id ${KMS_KEY_ID} --s3-bucket ${ARTIFACT_S3_BUCKET} --output-template-file cloudformation/output-template.yml
+          artifacts:
+            type: zip
+            files:
+              - cloudformation/template.yml
+              - cloudformation/output-template.yml
+
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
         Image: aws/codebuild/golang:1.11
