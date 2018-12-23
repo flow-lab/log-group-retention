@@ -109,7 +109,7 @@ Resources:
               Configuration:
                 StackName: !Sub ${ApplicationName}-lambda
                 ActionMode: CHANGE_SET_REPLACE
-                RoleArn: !Ref CodePipelineCloudFormationRole
+                RoleArn: !Sub 'arn:aws:iam::${AWS::AccountId}:role/cloudformation-service-role'
                 ChangeSetName: pipeline-changeset
                 Capabilities: CAPABILITY_NAMED_IAM
                 TemplatePath: Built::cloudformation/output-template.yml
@@ -153,7 +153,7 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       Path: /
-      RoleName: !Sub ${ApplicationName}-CodePipeline-${AWS::Region}
+      RoleName: !Sub ${ApplicationName}-codepipeline-${AWS::Region}
       AssumeRolePolicyDocument: |
         {
             "Statement": [{
@@ -165,7 +165,7 @@ Resources:
             }]
         }
       Policies:
-        - PolicyName: !Sub ${ApplicationName}-CodePipeline-${AWS::Region}
+        - PolicyName: !Sub ${ApplicationName}-codepipeline-${AWS::Region}
           PolicyDocument: !Sub |
             {
                 "Statement": [
@@ -225,32 +225,6 @@ Resources:
                 ]
             }
 
-  CodePipelineCloudFormationRole:
-    Type: AWS::IAM::Role
-    Properties:
-      Path: /
-      RoleName: !Sub ${ApplicationName}-CloudFormation-${AWS::Region}
-      AssumeRolePolicyDocument: |
-        {
-            "Statement": [{
-                "Action": "sts:AssumeRole",
-                "Effect": "Allow",
-                "Principal": {
-                    "Service": "cloudformation.amazonaws.com"
-                }
-            }]
-        }
-      Policies:
-        - PolicyName: !Sub ${ApplicationName}-CloudFormation-${AWS::Region}
-          PolicyDocument: !Sub |
-            {
-                "Statement": [{
-                        "Effect": "Allow",
-                        "Action": [ "*" ],
-                        "Resource": "*"
-                }]
-            }
-
   CodeDeployApplication:
     Type: AWS::CodeDeploy::Application
     Properties:
@@ -260,7 +234,7 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       Path: /
-      RoleName: !Sub ${ApplicationName}-CodeDeploy-${AWS::Region}
+      RoleName: !Sub ${ApplicationName}-codedeploy-${AWS::Region}
       AssumeRolePolicyDocument: |
         {
             "Statement": [{
@@ -302,7 +276,7 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       Path: /
-      RoleName: !Sub ${ApplicationName}-CodeBuild-${AWS::Region}
+      RoleName: !Sub ${ApplicationName}-codebuild-${AWS::Region}
       AssumeRolePolicyDocument: |
         {
             "Statement": [{
@@ -314,7 +288,7 @@ Resources:
             }]
         }
       Policies:
-        - PolicyName: !Sub ${ApplicationName}-CodeBuild-${AWS::Region}
+        - PolicyName: !Sub ${ApplicationName}-codebuild-${AWS::Region}
           PolicyDocument: !Sub |
             {
                 "Statement": [
