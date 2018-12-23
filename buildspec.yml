@@ -1,4 +1,4 @@
-version: 0.1
+version: 0.2
 
 phases:
   install:
@@ -13,10 +13,11 @@ phases:
   build:
     commands:
       - go build -o main
+      - env
+      - aws cloudformation package --template-file cloudformation/template.yml --kms-key-id ${KMS_KEY_ID} --s3-bucket ${ARTIFACT_S3_BUCKET} --output-template-file cloudformation/output-template.yml
 
 artifacts:
+  type: zip
   files:
-    - main
-    - buildspec.yml
-    - codedeploy/*
-    - cloudformation/*
+    - cloudformation/template.yml
+    - cloudformation/output-template.yml

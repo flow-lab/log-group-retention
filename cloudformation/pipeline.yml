@@ -10,10 +10,6 @@ Parameters:
     Type: String
     AllowedPattern: '[A-Za-z0-9-]+'
 
-  ArtifactS3Bucket:
-    Description: An existing S3 bucket within this AWS account
-    Type: String
-
   GitHubOAuthToken:
     Description: Create a token with 'repo' and 'admin:repo_hook' permissions here https://github.com/settings/tokens
     Type: String
@@ -39,7 +35,6 @@ Metadata:
           default: Application Configuration
         Parameters:
           - ApplicationName
-          - ArtifactS3Bucket
       - Label:
           default: GitHub Configuration
         Parameters:
@@ -51,8 +46,6 @@ Metadata:
     ParameterLabels:
       ApplicationName:
         default: Application Name
-      ArtifactS3Bucket:
-        default: CodePipeline S3 Bucket
       GitHubRepository:
         default: Repository Name
       GitHubUser:
@@ -63,6 +56,9 @@ Metadata:
         default: OAuth2 Token
 
 Resources:
+  ArtifactS3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
 
   CodePipeline:
     Type: AWS::CodePipeline::Pipeline
@@ -88,6 +84,7 @@ Resources:
                 Repo: !Ref GitHubRepository
                 Branch: !Ref GitHubBranch
                 OAuthToken: !Ref GitHubOAuthToken
+              RunOrder: 1
         - Name: Build
           Actions:
             - Name: CodeBuild
@@ -102,10 +99,10 @@ Resources:
                 - Name: Built
               Configuration:
                 ProjectName: !Ref CodeBuild
+              RunOrder: 2
         - Name: Staging
           Actions:
             - Name: Deploy
-              RunOrder: 1
               InputArtifacts:
                 - Name: Built
               ActionTypeId:
@@ -114,18 +111,12 @@ Resources:
                 Version: 1
                 Provider: CloudFormation
               Configuration:
-                ActionMode: REPLACE_ON_FAILURE
+                ActionMode: CHANGE_SET_EXECUTE
+                ChangeSetName: pipeline-changeset
                 RoleArn: !Sub ${CodePipelineCloudFormationRole.Arn}
-                Capabilities: CAPABILITY_NAMED_IAM
                 StackName: !Sub ${ApplicationName}-test
-                TemplatePath: Built::cloudformation/template.yml
-#                TemplateConfiguration: Built::config/staging.conf
-#                ParameterOverrides: !Sub |
-#                  {
-#                      "ApplicationName": "${ApplicationName}",
-#                      "EnvironmentName": "staging",
-#                      "ArtifactS3Bucket": "${ArtifactS3Bucket}"
-#                  }
+                TemplatePath: Built::cloudformation/output-template.yml
+              RunOrder: 3
 
   CodeBuild:
     Type: AWS::CodeBuild::Project
@@ -142,6 +133,8 @@ Resources:
         EnvironmentVariables:
           - Name: ARTIFACT_S3_BUCKET
             Value: !Sub ${ArtifactS3Bucket}
+          - Name: KMS_KEY_ID
+            Value: 'aws/s3'
       Artifacts:
         Name: !Ref ApplicationName
         Type: CODEPIPELINE
