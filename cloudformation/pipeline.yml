@@ -4,10 +4,6 @@ Description: >
   It is inspired by https://github.com/aws-samples/golang-deployment-pipeline.
 
 Parameters:
-  ApplicationName:
-    Description: This will be used to name the pipeline and build resources
-    Type: String
-    AllowedPattern: '[A-Za-z0-9-]+'
   GitHubOAuthToken:
     Description: Create a token with 'repo' and 'admin:repo_hook' permissions here https://github.com/settings/tokens
     Type: String
@@ -29,18 +25,12 @@ Metadata:
       - Label:
           default: Application Configuration
         Parameters:
-          - ApplicationName
-      - Label:
-          default: GitHub Configuration
-        Parameters:
           - GitHubOAuthToken
           - GitHubUser
           - GitHubRepository
           - GitHubBranch
 
     ParameterLabels:
-      ApplicationName:
-        default: Application Name
       GitHubRepository:
         default: Repository Name
       GitHubUser:
@@ -58,7 +48,7 @@ Resources:
   CodePipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
-      Name: !Ref ApplicationName
+      Name: !Ref GitHubRepository
       RoleArn: !Sub ${CodePipelineRole.Arn}
       ArtifactStore:
         Type: S3
@@ -107,7 +97,7 @@ Resources:
                 Provider: CloudFormation
               OutputArtifacts: []
               Configuration:
-                StackName: !Sub ${ApplicationName}-lambda
+                StackName: !Sub ${GitHubRepository}-lambda
                 ActionMode: CHANGE_SET_REPLACE
                 RoleArn: !Sub 'arn:aws:iam::${AWS::AccountId}:role/cloudformation-service-role'
                 ChangeSetName: pipeline-changeset
@@ -123,7 +113,7 @@ Resources:
                 Provider: CloudFormation
               OutputArtifacts: []
               Configuration:
-                StackName: !Sub ${ApplicationName}-lambda
+                StackName: !Sub ${GitHubRepository}-lambda
                 ActionMode: CHANGE_SET_EXECUTE
                 ChangeSetName: pipeline-changeset
               RunOrder: 2
@@ -131,8 +121,8 @@ Resources:
   CodeBuild:
     Type: AWS::CodeBuild::Project
     Properties:
-      Name: !Ref ApplicationName
-      Description: !Sub Build project for ${ApplicationName}
+      Name: !Ref GitHubRepository
+      Description: !Sub Build project for ${GitHubRepository}
       ServiceRole: !Ref CodeBuildRole
       Source:
         Type: CODEPIPELINE
@@ -146,14 +136,14 @@ Resources:
           - Name: KMS_KEY_ID
             Value: !Sub arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/s3
       Artifacts:
-        Name: !Ref ApplicationName
+        Name: !Ref GitHubRepository
         Type: CODEPIPELINE
 
   CodePipelineRole:
     Type: AWS::IAM::Role
     Properties:
       Path: /
-      RoleName: !Sub ${ApplicationName}-codepipeline-${AWS::Region}
+      RoleName: !Sub ${GitHubRepository}-codepipeline-${AWS::Region}
       AssumeRolePolicyDocument: |
         {
             "Statement": [{
@@ -165,7 +155,7 @@ Resources:
             }]
         }
       Policies:
-        - PolicyName: !Sub ${ApplicationName}-codepipeline-${AWS::Region}
+        - PolicyName: !Sub ${GitHubRepository}-codepipeline-${AWS::Region}
           PolicyDocument: !Sub |
             {
                 "Statement": [
@@ -181,7 +171,7 @@ Resources:
                             "S3:GetObjectVersion"
                         ],
                         "Resource": [
-                            "arn:aws:s3:::${ArtifactS3Bucket}/${ApplicationName}/*",
+                            "arn:aws:s3:::${ArtifactS3Bucket}/${GitHubRepository}/*",
                             "arn:aws:s3:::${ArtifactS3Bucket}/*"
                         ],
                         "Effect": "Allow"
@@ -225,16 +215,11 @@ Resources:
                 ]
             }
 
-  CodeDeployApplication:
-    Type: AWS::CodeDeploy::Application
-    Properties:
-      ApplicationName: !Sub ${ApplicationName}
-
   CodeDeployServiceRole:
     Type: AWS::IAM::Role
     Properties:
       Path: /
-      RoleName: !Sub ${ApplicationName}-codedeploy-${AWS::Region}
+      RoleName: !Sub ${GitHubRepository}-codedeploy-${AWS::Region}
       AssumeRolePolicyDocument: |
         {
             "Statement": [{
@@ -276,7 +261,7 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       Path: /
-      RoleName: !Sub ${ApplicationName}-codebuild-${AWS::Region}
+      RoleName: !Sub ${GitHubRepository}-codebuild-${AWS::Region}
       AssumeRolePolicyDocument: |
         {
             "Statement": [{
@@ -288,7 +273,7 @@ Resources:
             }]
         }
       Policies:
-        - PolicyName: !Sub ${ApplicationName}-codebuild-${AWS::Region}
+        - PolicyName: !Sub ${GitHubRepository}-codebuild-${AWS::Region}
           PolicyDocument: !Sub |
             {
                 "Statement": [
@@ -304,7 +289,7 @@ Resources:
                     {
                         "Effect": "Allow",
                         "Resource": [
-                            "arn:aws:s3:::${ArtifactS3Bucket}/${ApplicationName}/*",
+                            "arn:aws:s3:::${ArtifactS3Bucket}/${GitHubRepository}/*",
                             "arn:aws:s3:::${ArtifactS3Bucket}/*"
                         ],
                         "Action": [
@@ -319,14 +304,9 @@ Resources:
 Outputs:
   CodePipelineURL:
     Description: The URL for the created pipeline
-    Value: !Sub https://${AWS::Region}.console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${ApplicationName}
-  CodeDeployApplication:
-    Description: The CodeDeploy application used across all environments
-    Value: !Ref CodeDeployApplication
-    Export:
-      Name: !Sub CodeDeployApplication-${ApplicationName}
+    Value: !Sub https://${AWS::Region}.console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${GitHubRepository}
   CodeDeployServiceRoleArn:
     Description: The CodeDeploy service role used across all environments
     Value: !GetAtt CodeDeployServiceRole.Arn
     Export:
-      Name: !Sub CodeDeployServiceRoleArn-${ApplicationName}
+      Name: !Sub CodeDeployServiceRoleArn-${GitHubRepository}

@@ -28,8 +28,8 @@ Deploy codepipeline(replace GITHUB_TOKEN and ACCOUNT_ID):
 ```sh
 aws cloudformation deploy \
     --stack-name log-group-retention-codepipeline \
-    --parameter-overrides ApplicationName="log-group-retention" GitHubUser="flow-lab" GitHubRepository="log-group-retention" GitHubOAuthToken="GITHUB_TOKEN" \
-    --role-arn "arn:aws:iam::ACCOUNT_ID:role/cloudformation-service-role"
+    --parameter-overrides GitHubUser="flow-lab" GitHubRepository="log-group-retention" GitHubOAuthToken="GITHUB_TOKEN" \
+    --role-arn "arn:aws:iam::ACCOUNT_ID:role/cloudformation-service-role" \
     --template cloudformation/pipeline.yml \
     --capabilities CAPABILITY_NAMED_IAM \
     --profile cloudformation@flowlab-development
