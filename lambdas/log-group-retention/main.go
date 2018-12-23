@@ -23,7 +23,7 @@ type LogGroup struct {
 }
 
 // Handler for lambda execution
-func Handler(ctx context.Context, _ events.CloudWatchEvent) (string, error) {
+func Handler(ctx context.Context, d events.CloudWatchEvent) (string, error) {
 	lambdaContext, _ := lambdacontext.FromContext(ctx)
 	requestLogger := dlog.NewRequestLogger(lambdaContext.AwsRequestID, "log-group-retention")
 

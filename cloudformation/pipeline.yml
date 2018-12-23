@@ -135,11 +135,27 @@ Resources:
                 - go get -u golang.org/x/lint/golint
             pre_build:
               commands:
-                - golint -set_exit_status
-                - go test
+                - |
+                  for dir in lambdas/*/
+                  do
+                      dir=${dir%*/}
+                      echo Lint and Test: ${dir##*/}
+                      in=${PWD}/${dir}
+
+                      golint -set_exit_status ${PWD}/${dir}
+                      go test ${in}
+                  done
             build:
               commands:
-                - go build -o main
+                - |
+                  for dir in lambdas/*/
+                  do
+                      dir=${dir%*/}
+                      echo Building: ${dir##*/}
+                      in=${PWD}/${dir}
+
+                      go build -o ${in}/main ${in}
+                  done
                 - aws cloudformation package --template-file cloudformation/template.yml --kms-key-id ${KMS_KEY_ID} --s3-bucket ${ARTIFACT_S3_BUCKET} --output-template-file cloudformation/output-template.yml
           artifacts:
             type: zip
