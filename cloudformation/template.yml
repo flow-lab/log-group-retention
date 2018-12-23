@@ -30,7 +30,7 @@ Resources:
     Properties:
       Handler: main
       Runtime: go1.x
-      CodeUri: ../lambdas/log-group-subscription/
+      CodeUri: ../lambdas/log-group-retention/
       MemorySize: 128
       Description: >-
         Set log retention on Log Groups if missing
