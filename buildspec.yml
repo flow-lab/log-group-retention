@@ -3,8 +3,7 @@ version: 0.2
 phases:
   install:
     commands:
-      - go get -d ./...
-      - go get -u github.com/stretchr/testify/assert
+      - go get -t -v ./...
       - go get -u golang.org/x/lint/golint
   pre_build:
     commands:
@@ -13,7 +12,6 @@ phases:
   build:
     commands:
       - go build -o main
-      - env
       - aws cloudformation package --template-file cloudformation/template.yml --kms-key-id ${KMS_KEY_ID} --s3-bucket ${ARTIFACT_S3_BUCKET} --output-template-file cloudformation/output-template.yml
 
 artifacts:
