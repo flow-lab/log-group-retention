@@ -144,6 +144,7 @@ Resources:
 
                       golint -set_exit_status ${PWD}/${dir}
                       go test ${in}
+                      printenv
                   done
             build:
               commands:
